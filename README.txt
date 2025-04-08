@@ -1,5 +1,7 @@
 RANDOMIZER2077 - 1.1.1
 
+Note: This was my very first time making a mod and writing in Lua, so uhh, the code isn't very pretty to look at. But hey, it works!
+
 :: REQUIREMENTS ::
 • Cyber Engine Tweaks
 • Native Settings UI
