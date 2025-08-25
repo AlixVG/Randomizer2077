@@ -39,9 +39,12 @@ local Exclusions = {
         "q303_tech_floor_challange_04_guard_01", "q303_tech_floor_challange_02_guard_01", "q303_tech_floor_challange_03_guard_03", "q303_tech_floor_elevator_guard_01", "farida", "cyberninja_oda", "animals_strong_melee_boss_hammer_only",
         "q003_royce_boss", "songbird_follower", "q306_black_ops_chopper", "totentanz_bouncer", "q101_toten_guard", "q005_hotel_concierge", "q112_wakako_guard", "q305_maxtac_miniboss_mantis_ma", "q305_maxtac_miniboss_fshotgun_mb", "q305_maxtac_miniboss_netrunner_ma",
         "q305_maxtac_miniboss_sniper_ma", "q305_maxtac_miniboss_frifle_wa", "elizabeth_peralez", "jefferson_peralez", "sq021_young_meatman", "sq021_fake_cow_npc", "sq017_club_security_friendly", "sq017_pachinko_doorman", "sq017_media", "q115_solo_nest_arasaka_heavy_gunner_elite", 
-        "q114_arasaka_manufacturing_netrunner", "q113_ceo_floor_rifleman", "q113_ceo_floor_shotgunner", "q113_ceo_floor_handgunner", "q113_ceo_floor_netrunner", "q304_stadium_kurt_soldier_shotgun_escape_ma" -- ,"q306_black_ops_fast_ranged", "q306_black_ops_shotgunner_2", "q306_black_ops_netrunner", "q306_black_ops_wa", "q306_black_ops_ma_fast_spotter",
+        "q114_arasaka_manufacturing_netrunner", "q113_ceo_floor_rifleman", "q113_ceo_floor_shotgunner", "q113_ceo_floor_handgunner", "q113_ceo_floor_netrunner", "q304_stadium_kurt_soldier_shotgun_escape_ma", "q001_policewoman_blockade" -- ,"q306_black_ops_fast_ranged", "q306_black_ops_shotgunner_2", "q306_black_ops_netrunner", "q306_black_ops_wa", "q306_black_ops_ma_fast_spotter",
         -- "q306_black_ops_shotgunner", "q306_black_ops_drone_wyvern", "q306_black_ops_drone_wyvern", "q306_black_ops_fast_blkwl", "q306_black_ops_sniper_blkwl", "q306_black_ops_shotgunner_fast_spotter", "q306_black_ops_sniper", "q306_black_ops_HMG",
         -- "q306_black_ops_ma", "q306_black_ops_minotaur_mech" -- "q306_black_ops_shotgunner_blkwl", "q306_black_ops_ma_blkwl", "q306_black_ops_shotgunner_2_blkwl"
+    },
+    MirrorIDs = {
+        "q110_tpp_male_v", "q110_tpp_female_v"
     },
     NoRandoCharacterIDs = {
         "q003_spiderbot_case", "q003_spiderbot", "q005_penthouse_iguana", "q115_elevator_speaker_temp", "judy_puppet_photomode", "hanako_puppet_photomode", "myers_puppet_photomode", "evelyn_puppet_photomode",
@@ -49,7 +52,8 @@ local Exclusions = {
         "alt_puppet_photomode", "songbird_puppet_photomode", "reed_puppet_photomode", "player_puppet_photomode", "panam_puppet_photomode", "nibbles_puppet_photomode", "johnnynpc_puppet_photomode", "johnny_puppet_photomode",
         "rogueold_puppet_photomode", "goro_puppet_photomode", "rogueyound_puppet_photomode", "river_puppet_photomode", "kurt_puppet_photomode", "bluemoon_puppet_photomode", "altjohnny_puppet_photomode", "lizzy_puppet_photomode",
         "johnny_mirror", "q304_bella_mirror", "q304_theo_mirror", "kurtz_mirror", "q000_hym_v_tpp_male", "q000_hym_v_tpp_female", "q304_v_head_in_jar_ma", "q304_v_head_in_jar_wa", "q116_v_female", "q116_v_male",
-        "female_tpp_V_headless", "male_tpp_V_headless"
+        "female_tpp_V_headless", "male_tpp_V_headless", "cvi_scavenger_grunt1_ranged1_pulsar_ma", "q110_tpp_male_v", "q110_tpp_female_v", "mq304_nicola_tpp_ma",
+        "TPP_Player_Cutscene_No_Impostor_Male", "TPP_Player_Cutscene_No_Impostor_Female", "female_tpp_V", "male_tpp_V", "TPP_Player_Male", "TPP_Player_Female"
     },
     BossIDs = {
         "cyberninja_oda", "smasher", "q003_royce_boss", "q304_kurt_miniboss", "q110_animals_boss", "q113_boss_smasher", "q116_boss_smasher"
@@ -119,7 +123,8 @@ local Exclusions = {
         "Vehicle.v_standard2_villefort_cortes_player", "Vehicle.v_sportbike1_yaiba_kusanagi_player_02", "Vehicle.v_sportbike2_arch_player_03",
         "Vehicle.v_standard3_makigai_tanishi_player", "Vehicle.v_standard25_villefort_columbus_player", "Vehicle.v_sportbike2_arch_tyger_player",
         "Vehicle.v_sport2_mizutani_shion_targa_player", "Vehicle.v_standard2_villefort_cortes_delamain_player", "Vehicle.v_standard2_archer_bandit_player",
-        "Vehicle.v_standard2_thorton_galena_nomad_player"
+        "Vehicle.v_standard2_thorton_galena_nomad_player", "Vehicle.v_sport1_yaiba_semimaru_player", "Vehicle.v_sport1_rayfield_caliburn_mordred_player", 
+        "Vehicle.v_sportbike1_yaiba_muramasa_regular", "Vehicle.v_utility4_chevalier_legatus_player"
     },
     heals = {
         "Items.BonesMcCoy70V0",

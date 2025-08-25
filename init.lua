@@ -4,7 +4,7 @@
 --Based on the CursedRandomizer mod by Jackexe
 
 --Created by alixbugbug with help from Jaxstutz
---If you are looking to make your own mod or to modify this one and you have some questions, don't hesitate to dm @alixbugbug on twitter or @alixbugbug.bsky.social on bluesky! 
+--If you are looking to make your own mod or to modify this one and you have some questions, don't hesitate to dm @alixisabug on twitter or @alixbugbug.bsky.social on bluesky! 
 --Keep in mind I'm a bit of a gonk :>
 
 --Please feel free to modify the mod any way you'd like, and if you're looking to make it better and release your own version, don't hesitate, just give proper credit <3
@@ -18,11 +18,15 @@ Json = require('External/json.lua')
 local Exclusions = require('exclusions')
 local playerDefaults = {}
 
+
+--You can find all the ID lists in the exclusions file! Feel free to modify them if you need :)
+
 local excludedCharacterIDs = Exclusions.CharacterIDs
 local noRandoCharacterIDs = Exclusions.NoRandoCharacterIDs
 local excludedLootRando = Exclusions.Loot
 local excludedItemIDs = Exclusions.ItemIDs
 local shuffleMainIDs = Exclusions.MainIDs
+local randomMirrorIDs = Exclusions.MirrorIDs
 local shuffleMainMaleIDs = Exclusions.MainMaleIDs
 local shuffleMainBuffIDs = Exclusions.MainBuffIDs
 local shuffleFullMainIDs = Exclusions.MainAllIDs
@@ -41,6 +45,7 @@ local bluntWeapons = Exclusions.bluntWeapons
 
 Config = {
     IsRandom = false,
+    IsMirrorRandom = false,
     IsMainRandom = false,
     IsLootRandom = false,
     IsMainShuffle = false,
@@ -199,6 +204,15 @@ function CharacterRandomizer()
         return false
     end
 
+    local function isMirrorCharacter(lowerBaseName)
+        for _, mirrorID in ipairs(randomMirrorIDs) do
+            if lowerBaseName == string.lower(mirrorID) then
+                return true
+            end
+        end
+        return false
+    end
+
     for _,record in ipairs(allCharacters) do
         local id = record:GetID()
         local idValue = tostring(id.value)
@@ -225,6 +239,10 @@ function CharacterRandomizer()
         end
 
         if isNoRandoCharacter(lowerBaseName) then
+            goto continue
+        end
+
+        if isMirrorCharacter(lowerBaseName) and not Config.IsMirrorRandom then
             goto continue
         end
 
@@ -347,6 +365,10 @@ function CharacterRandomizer()
             goto continue
         end
 
+        if isMirrorCharacter(lowerBaseName) and not Config.IsMirrorRandom then
+            goto continue
+        end
+
         if lowerBaseName:find("^amm_") or lowerBaseName:find("^amm_character") then
             goto continue
         end
@@ -444,6 +466,9 @@ function CharacterRandomizer()
         ::continue::
     end
     print("[Randomizer2077] NPC randomization complete!")
+    if Config.IsMirrorRandom then
+        print("[Randomizer2077] Randomized V's reflection!")
+    end
 end
 
 
@@ -523,7 +548,6 @@ function StartingInventoryRandomizer()
 
         local i_weapon = d:GetItemInEquipSlot(gamedataEquipmentArea.Weapon, 0)
         if i_weapon and i_weapon.tdbid and i_weapon.tdbid.hash ~= 0 then
-            print("hi weapon")
             local dtw = t:GetItemData(p, i_weapon)
             if dtw:HasTag("Quest") then
                 dtw:RemoveDynamicTag("Quest")
@@ -567,11 +591,12 @@ function LootRandomizer()
         local id = record:GetID()
         local isItemExcluded = false
         local isLootExcluded = false
-        if not IsComponentRandom then
+        if not Config.IsComponentRandom then
             if string.find(tostring(id.value), "Material") then
                 goto continue
             end
         end
+
         if not string.find(tostring(id.value), "Shard") then
             loot["dropChance"] = TweakDB:GetFlat(id .. ".dropChance")
             loot["dropCountMax"] = TweakDB:GetFlat(id .. ".dropCountMax")
@@ -615,7 +640,7 @@ function LootRandomizer()
             end
         end
 
-        if not IsComponentRandom then
+        if not Config.IsComponentRandom then
             if string.find(tostring(id.value), "Material") then
                 goto continue
             end
@@ -1011,12 +1036,12 @@ function ChaoticFirearms()
                     table.insert(rangePool, modifierRef)
                 elseif string.find(refString, "Constant_Stats") then
                     table.insert(constantPool, modifierRef)
-                --elseif string.find(refString, "Technical_Stats") then
-                    --table.insert(technicalPool, modifierRef)
-                --elseif string.find(refString, "Power_Stats") then
-                    --table.insert(powerPool, modifierRef)
-                --elseif string.find(refString, "Smart_Stats") then
-                    --table.insert(smartPool, modifierRef)
+                elseif string.find(refString, "Technical_Stats") then
+                    table.insert(technicalPool, modifierRef)
+                elseif string.find(refString, "Power_Stats") then
+                    table.insert(powerPool, modifierRef)
+                elseif string.find(refString, "Smart_Stats") then
+                    table.insert(smartPool, modifierRef)
                 elseif string.find(refString, "Misc_Stats") then
                     table.insert(miscPool, modifierRef)
                 elseif string.find(refString, "DeadReckoning_Stats") then
@@ -1148,12 +1173,12 @@ function ChaoticFirearms()
             return GetRandom(rangePool)
         elseif string.find(refString, "Constant_Stats") then
             return GetRandom(constantPool)
-        --elseif string.find(refString, "Technical_Stats") then
-            --return GetRandom(technicalPool)
-        --elseif string.find(refString, "Power_Stats") then
-            --return GetRandom(powerPool)
-        --elseif string.find(refString, "Smart_Stats") then
-            --return GetRandom(smartPool)
+        elseif string.find(refString, "Technical_Stats") then
+            return GetRandom(technicalPool)
+        elseif string.find(refString, "Power_Stats") then
+            return GetRandom(powerPool)
+        elseif string.find(refString, "Smart_Stats") then
+            return GetRandom(smartPool)
         elseif string.find(refString, "Misc_Stats") then
             return GetRandom(miscPool)
         elseif string.find(refString, "DeadReckoning_Stats") then
@@ -2038,6 +2063,399 @@ function MainBossShuffle()
 end
 
 
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- CharacterSwapper --
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- stitched together by jaxstutz
+-- uses modified logic from alixbugbug's modified version of Jackexe's randomization mod
+-- also uses UI from fxckedinside's achievement unlocker mod because of course it does
+-- hi bug
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+local variables = {
+    version = "1.5.0",
+    character_list = {}, -- list of characters
+    character_cache = {}, -- cache for storing original character values
+    modded_cache = {}, -- cache for storing modded character values
+    live_update_index = 1, -- character index to live update with
+    last_looked_at_character = nil -- ID of last raycast target
+}
+
+local settings = {
+    is_overlay_open = false,
+    source_character_index = 1,
+    target_character_index = 1
+}
+
+local flats = {
+    "abilites", "actionMap", "archetypeName", "entityTemplatePath", "rarity",
+    "statModifierGroups", "voiceTag", "weakspots", "EquipmentAreas", "archetypeData",
+    "attachmentSlots", "objectActions", "scannerModulePreset", "statPools", "statModifiers",
+    "threatTrackingPreset",
+	"secondaryEquipment", "primaryEquipment", "lootDrop",
+    "lootBagEntity", "items", "itemGroups", "dropsAmmoOnDeath", "dropsMoneyOnDeath",
+    "dropsWeaponOnDeath", "defaultEquipment"
+}
+
+local function cacheCharacter(targetID)
+    if not variables.character_cache[targetID] then
+        variables.character_cache[targetID] = {}
+        for _, flat in ipairs(flats) do
+            local value = TweakDB:GetFlat(targetID .. "." .. flat)
+            variables.character_cache[targetID][flat] = value
+        end
+    end
+end
+
+-- function to fetch all available character records
+getCharactersToSwap = function()
+    local characterRecords = TweakDB:GetRecords("gamedataCharacter_Record")
+
+    if not characterRecords then
+        print("[CharacterSwapper] Failed to fetch character records from TweakDB.")
+        return
+    end
+
+    for _, record in ipairs(characterRecords) do
+        local recordID = record:GetID()
+        local rawID = tostring(recordID)
+        local extractedID = rawID:match("%-%-%[%[%s*(.-)%s*%-%-%]%]")
+
+        if extractedID then
+            table.insert(variables.character_list, extractedID)
+            cacheCharacter(extractedID) -- Cache character on load
+        end
+    end
+
+    table.sort(variables.character_list, function(a, b) return a:lower() < b:lower() end)
+end
+
+local playerIDs = {
+        "Character.mws_se5_03_player",
+        "Character.Player_Puppet_Base",
+        "Character.TPP_Player",
+        "Character.TPP_Player_Cutscene_Male",
+        "Character.TPP_Player_Cutscene_Female",
+        "Character.Player_Puppet_Inventory",
+        "Character.Player_Puppet_Photomode",
+        "Character.Player_Puppet_Menu",
+        "Character.Player_Replacer_Puppet_Base",
+        "Character.TPP_Player_Cutscene_No_Impostor_Male",
+        "Character.TPP_Player_Cutscene_No_Impostor_Female",
+        "Character.Sample_Player",
+        "AMM_Character.Player_Male",
+        "AMM_Character.Player_Female",
+        "AMM_Character.TPP_Player_Male",
+        "AMM_Character.TPP_Player_Female",
+}
+
+local function isPlayerCharacter(characterID)
+    for _, playerID in ipairs(playerIDs) do
+        if characterID == playerID then
+            return true
+        end
+    end
+    return false
+end
+
+local function getLookedAtEntityID()
+    local player = Game.GetPlayer()
+    local target = Game.GetTargetingSystem():GetLookAtObject(player, false, false)
+    if not target or type(target.GetRecordID) ~= "function" then
+        return nil, nil
+    end
+
+    local recordID = target:GetRecordID()
+    if not recordID then return nil, nil end
+
+    local rawID = tostring(recordID)
+    local match = rawID:match("%-%-%[%[%s*(.-)%s*%-%-%]%]") or rawID
+
+    if match and variables.character_cache[match] then
+        variables.last_looked_at_character = match
+        return match, rawID
+    end
+
+    return nil, nil
+end
+
+local function liveUpdateCharacter()
+    local sourceID = variables.character_list[settings.source_character_index]
+    local targetID = variables.last_looked_at_character
+
+    if not targetID then
+        print("[CharacterSwapper] No character targeted for swap.")
+        return
+    end
+
+    if sourceID == targetID then
+        print("[CharacterSwapper] Source and Target characters are the same. No swap needed.")
+        return
+    end
+
+    if not variables.character_cache[sourceID] then
+        print("[CharacterSwapper] No cached data for source: " .. sourceID)
+        return
+    end
+
+    print("[CharacterSwapper] Replacing " .. targetID .. " with " .. sourceID)
+    for flat, value in pairs(variables.character_cache[sourceID]) do
+        TweakDB:SetFlat(targetID .. "." .. flat, value)
+    end
+	
+	print("[CharacterSwapper] Character swap successful! Reload your save for the changes to take effect.")
+end
+
+-- function to replace character attributes using cache
+local function replaceCharacter()
+    local sourceID = variables.character_list[settings.source_character_index]
+    local targetID = variables.character_list[settings.target_character_index]
+
+    if sourceID == targetID then
+        print("[CharacterSwapper] Source and Target characters are the same. No swap needed.")
+        return
+    end
+
+    if not variables.character_cache[sourceID] then
+        print("[CharacterSwapper] No cached data found for " .. sourceID)
+        return
+    end
+
+    print("[CharacterSwapper] Replacing " .. targetID .. " with " .. sourceID)
+    for flat, value in pairs(variables.character_cache[sourceID]) do
+        TweakDB:SetFlat(targetID .. "." .. flat, value)
+    end
+
+    print("[CharacterSwapper] Character swap successful! Reload your save for the changes to take effect.")
+end
+
+-- function to replace ALL characters except player characters with the source character
+local function replaceAllCharacters()
+    local sourceID = variables.character_list[settings.source_character_index]
+    
+    if not sourceID then
+        print("[CharacterSwapper] No source character selected.")
+        return
+    end
+    
+    if not variables.character_cache[sourceID] then
+        print("[CharacterSwapper] No cached values for " .. sourceID)
+        return
+    end
+    
+    print("[CharacterSwapper] Replacing all characters with default values of " .. sourceID)
+    for _, targetID in ipairs(variables.character_list) do
+        if targetID ~= sourceID and not isPlayerCharacter(targetID) then
+            for _, flat in ipairs(flats) do
+                local value = variables.character_cache[sourceID] and variables.character_cache[sourceID][flat]
+                if value ~= nil then
+                    TweakDB:SetFlat(targetID .. "." .. flat, value)
+                end
+            end
+        end
+    end
+    print("[CharacterSwapper] All characters replaced with default values of " .. sourceID .. ", excluding player characters. Reload your save for the changes to take effect.")
+end
+
+-- function to restore the default character values
+local function restoreCharacter()
+    local targetID = variables.character_list[settings.target_character_index]
+    
+    if variables.character_cache[targetID] then
+        for flat, value in pairs(variables.character_cache[targetID]) do
+            TweakDB:SetFlat(targetID .. "." .. flat, value)
+        end
+        print("[CharacterSwapper] Restored default values for " .. targetID .. ". Reload your save for the changes to take effect.")
+    else
+        print("[CharacterSwapper] No cached data found for " .. targetID)
+    end
+end
+
+-- function to restore the default character values to the last on cursor character
+local function restoreCursorCharacter()
+    local targetID = variables.last_looked_at_character
+    if not targetID or not variables.character_cache[targetID] then
+        print("[CharacterSwapper] No valid target or cached default data.")
+        return
+    end
+    for flat, value in pairs(variables.character_cache[targetID]) do
+        TweakDB:SetFlat(targetID .. "." .. flat, value)
+    end
+	print("[CharacterSwapper] Restored default values for " .. targetID .. ". Reload your save for the changes to take effect.")
+end
+
+-- function to restore the modded character values to the last on cursor character
+local function restoreModdedCursorCharacter()
+    local targetID = variables.last_looked_at_character
+    if not targetID or not variables.modded_cache[targetID] then
+        print("[CharacterSwapper] No valid target or cached modded data.")
+        return
+    end
+    for flat, value in pairs(variables.modded_cache[targetID]) do
+        TweakDB:SetFlat(targetID .. "." .. flat, value)
+    end
+	print("[CharacterSwapper] Restored randomized values for " .. targetID .. ". Reload your save for the changes to take effect.")
+end
+
+-- function to restore ALL characters with their default cached versions
+local function restoreAllToDefault()
+    print("[CharacterSwapper] Restoring all characters to their default values.")
+    for _, characterID in ipairs(variables.character_list) do
+        if variables.character_cache[characterID] then
+            for flat, value in pairs(variables.character_cache[characterID]) do
+                TweakDB:SetFlat(characterID .. "." .. flat, value)
+            end
+        end
+    end
+    print("[CharacterSwapper] All characters restored to their default values. Reload your save for the changes to take effect.")
+end
+
+-- function to store modded values of all characters
+local function storeModdedValues()
+    for _, characterID in ipairs(variables.character_list) do
+        variables.modded_cache[characterID] = {}
+        for _, flat in ipairs(flats) do
+            local value = TweakDB:GetFlat(characterID .. "." .. flat)
+            variables.modded_cache[characterID][flat] = value
+        end
+    end
+    print("[CharacterSwapper] Stored randomized values for all characters.")
+end
+
+-- function to restore a character with modded values
+local function restoreModdedCharacter()
+    local targetID = variables.character_list[settings.target_character_index]
+    
+    if variables.modded_cache[targetID] then
+        for flat, value in pairs(variables.modded_cache[targetID]) do
+            TweakDB:SetFlat(targetID .. "." .. flat, value)
+        end
+        print("[CharacterSwapper] Restored randomized values for " .. targetID .. ". Reload your save for the changes to take effect.")
+    else
+        print("[CharacterSwapper] No modded data found for " .. targetID)
+    end
+end
+
+-- function to restore ALL characters with their modded cached versions
+local function restoreAllModded()
+    for _, characterID in ipairs(variables.character_list) do
+        if variables.modded_cache[characterID] then
+            for flat, value in pairs(variables.modded_cache[characterID]) do
+                TweakDB:SetFlat(characterID .. "." .. flat, value)
+            end
+		else
+        print("[CharacterSwapper] No modded cache found.")
+		end
+    end
+    print("[CharacterSwapper] All characters restored to their randomized values. Reload your save for the changes to take effect.")
+end
+
+-- UI
+registerForEvent("onDraw", function()
+    if not settings.is_overlay_open then return end
+
+    getLookedAtEntityID()
+
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize, 300, 40)
+    ImGui.Begin("Character Swapper", ImGuiWindowFlags.AlwaysAutoResize)
+	
+    if ImGui.Button("Store All Current Randomized Characters") then
+        storeModdedValues()
+    end
+	
+	ImGui.Separator()   
+	
+	-- dropdown for Source character (character to copy from)
+    ImGui.Text("Source Character:")
+    if ImGui.BeginCombo("##sourceCharacter", variables.character_list[settings.source_character_index]) then
+        for index, sourceCharacter in ipairs(variables.character_list) do
+            if ImGui.Selectable(sourceCharacter, settings.source_character_index == index) then
+                settings.source_character_index = index
+            end
+        end
+        ImGui.EndCombo()
+    end
+	
+	ImGui.Separator()   
+	
+	-- dropdown for Target character (character to modify)
+    ImGui.Text("Target Character to Modify:")
+    if ImGui.BeginCombo("##targetCharacter", variables.character_list[settings.target_character_index]) then
+        for index, targetCharacter in ipairs(variables.character_list) do
+            if ImGui.Selectable(targetCharacter, settings.target_character_index == index) then
+                settings.target_character_index = index
+            end
+        end
+        ImGui.EndCombo()
+    end
+	
+    if ImGui.Button("Replace Target with Source") then
+        replaceCharacter()
+    end
+
+    if ImGui.Button("Restore Target to Vanilla Settings") then
+        restoreCharacter()
+    end
+	
+    if ImGui.Button("Restore Target Character to Randomized Settings") then
+        restoreModdedCharacter()
+    end
+
+    ImGui.Separator()
+	
+	 -- Live update section
+    if variables.last_looked_at_character then
+        ImGui.Text("Last Character on Cursor:")
+        ImGui.Text("[" .. variables.last_looked_at_character .. "]")
+    else
+        ImGui.Text("Last Character on Cursor:")
+		ImGui.Text("none")
+    end
+
+    if ImGui.Button("Replace Character on Cursor with Source") then
+        liveUpdateCharacter()
+    end
+	
+	if ImGui.Button("Restore Character on Cursor to Vanilla Settings") then
+        restoreCursorCharacter()
+    end
+	
+	if ImGui.Button("Restore Character on Cursor to Randomized Settings") then
+        restoreModdedCursorCharacter()
+    end
+
+    ImGui.Separator()
+    
+	 -- section: replace/restore all characters
+	ImGui.Text("Replace/Restore All Characters:")
+	if ImGui.Button("Replace All Characters with Source") then
+        replaceAllCharacters()
+    end
+	
+	if ImGui.Button("Restore All Characters to Vanilla Settings") then
+        restoreAllToDefault()
+    end
+	
+	if ImGui.Button("Restore All Characters' Randomized Settings") then
+        restoreAllModded()
+    end
+
+
+    ImGui.End()
+    ImGui.PopStyleVar(1)
+end)
+
+registerForEvent("onOverlayOpen", function()
+    settings.is_overlay_open = true
+end)
+
+registerForEvent("onOverlayClose", function()
+    settings.is_overlay_open = false
+end)
+
+
 ------------
 --Handlers--
 ------------
@@ -2087,6 +2505,9 @@ registerForEvent("onInit", function()
     BackupPlayerDefaults()
     BackupVehicleDefaults()
 
+    getCharactersToSwap()
+    print("[CharacterSwapper] Successfully loaded - version: " .. variables.version)
+
     math.randomseed(Config.seed)
 
     --print("[Randomizer2077] nativeSettings:", nativeSettings)
@@ -2095,6 +2516,9 @@ registerForEvent("onInit", function()
 
     if Config.IsRandom then
         RevertRandom()
+        CharacterRandomizer()
+    end
+    if Config.IsMirrorRandom then
         CharacterRandomizer()
     end
     if Config.IsMainShuffle then
@@ -2111,6 +2535,9 @@ registerForEvent("onInit", function()
     end
     if Config.IsEveryonePsycho then
         TurnEveryonePsycho(Config.psychoPercentage)
+    end
+    if Config.IsStartingRandom then
+        StartingInventoryRandomizer()
     end
     if Config.IsLootRandom then
         LootRandomizer()
@@ -2131,7 +2558,7 @@ registerForEvent("onInit", function()
         ChaoticFirearms()
     end
 
-    nativeSettings.addTab("/randomizer", "Randomizer")
+    nativeSettings.addTab("/randomizer", "Randomizer2077")
     nativeSettings.addSubcategory("/randomizer/seed", "Seed")
     nativeSettings.addSubcategory("/randomizer/rando", "Randomizers")
     nativeSettings.addSubcategory("/randomizer/shuffle", "Shufflers")
@@ -2143,6 +2570,9 @@ registerForEvent("onInit", function()
         if Config.IsRandom then
             RevertRandom()
             CharacterRandomizer()                
+        end
+        if Config.IsMirrorRandom then
+            CharacterRandomizer()
         end
         if Config.IsMainShuffle then
             MainCharacterShuffle()
@@ -2195,6 +2625,15 @@ registerForEvent("onInit", function()
         else
             RestorePlayerDefaults()
             RevertRandom()
+        end
+    end)
+
+    nativeSettings.addSwitch("/randomizer/rando", "Randomize Reflection", "If on, V/Johnny's reflection will be randomized too.", Config.IsMirrorRandom, false, function(state)
+        Config.IsMirrorRandom = state
+        SaveConfig()
+        if Config.IsMirrorRandom then
+            RevertRandom()
+            CharacterRandomizer()
         end
     end)
 
